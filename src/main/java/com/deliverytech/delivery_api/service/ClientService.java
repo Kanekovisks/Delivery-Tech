@@ -18,7 +18,7 @@ public class ClientService {
 
     public Client registerClient(Client client) {
         if (repository.existsByEmail(client.getEmail())) {
-            throw new IllegalArgumentException("E-mail já cadastrado");
+            throw new IllegalArgumentException("E-mail já cadastrado.");
         }
 
         client.setAtivo(true);
@@ -28,5 +28,24 @@ public class ClientService {
 
     public List<Client> listActives() {
         return repository.findByAtivoTrue();
+    }
+
+    public Client searchByID(Long id) {
+        return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
+    }
+
+    public void deactivateId(Long id) {
+        Client client = searchByID(id);
+        client.setAtivo(false);
+        repository.save(client);
+    }
+
+    public Client updateInfo(Long id, Client info) {
+        Client client = searchByID(id);
+        client.setNome(info.getNome());
+        client.setEmail(info.getEmail());
+        client.setTelefone(info.getTelefone());
+        client.setEndereco(info.getEndereco());
+        return repository.save(client);
     }
 }
