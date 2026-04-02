@@ -1,5 +1,6 @@
 package com.deliverytech.delivery_api.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,24 +11,29 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "client")
+@Table(name = "restaurant")
 
-public class Client {
+public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String email;
+    private String category;
+    private String address;
     private String phone;
-    private String address; 
-    private Boolean active;
+    private BigDecimal rating;
+    private Boolean active; 
 
-    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY)
+    private List<Product> products;
+
+    @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
 }

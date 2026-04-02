@@ -15,7 +15,7 @@ import com.deliverytech.delivery_api.model.Client;
 import java.util.List;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/clients")
 
 public class ClientController {
     private ClientService service;

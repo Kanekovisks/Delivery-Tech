@@ -1,5 +1,6 @@
 package com.deliverytech.delivery_api.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.deliverytech.delivery_api.repository.ClientRepository;
@@ -10,6 +11,8 @@ import java.util.List;
 @Service
 
 public class ClientService {
+
+    @Autowired
     private ClientRepository repository;
 
     public ClientService(ClientRepository repository) {
@@ -21,31 +24,34 @@ public class ClientService {
             throw new IllegalArgumentException("E-mail já cadastrado.");
         }
 
-        client.setAtivo(true);
+        client.setActive(true);
 
         return repository.save(client);
     }
 
     public List<Client> listActives() {
-        return repository.findByAtivoTrue();
+        return repository.findByActiveTrue();
     }
 
     public Client searchByID(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo.");
+        }
         return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
     }
 
     public void deactivateId(Long id) {
         Client client = searchByID(id);
-        client.setAtivo(false);
+        client.setActive(false);
         repository.save(client);
     }
 
     public Client updateInfo(Long id, Client info) {
         Client client = searchByID(id);
-        client.setNome(info.getNome());
+        client.setName(info.getName());
         client.setEmail(info.getEmail());
-        client.setTelefone(info.getTelefone());
-        client.setEndereco(info.getEndereco());
+        client.setPhone(info.getPhone());
+        client.setAddress(info.getAddress());
         return repository.save(client);
     }
 }
