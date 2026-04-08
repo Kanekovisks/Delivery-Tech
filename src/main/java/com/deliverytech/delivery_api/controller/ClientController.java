@@ -1,5 +1,6 @@
 package com.deliverytech.delivery_api.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.deliverytech.delivery_api.service.ClientService;
-import com.deliverytech.delivery_api.model.Client;
+
+import jakarta.validation.Valid;
+
+import com.deliverytech.delivery_api.dto.requests.ClientDTO;
+import com.deliverytech.delivery_api.dto.responses.ClientResponseDTO;
 
 import java.util.List;
 
@@ -25,27 +30,29 @@ public class ClientController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Client> registerClient(@RequestBody Client client) {
-        return ResponseEntity.status(201).body(service.registerClient(client));
+    public ResponseEntity<ClientResponseDTO> registerClient(@Valid @RequestBody ClientDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerClient(dto));
     }
 
     @GetMapping
-    public List<Client> listActives(){
+    public List<ClientResponseDTO> listActives(){
         return service.listActives();
     }
 
     @GetMapping("/{id}")
-    public Client searchByID(@PathVariable Long id) {
+    public ClientResponseDTO searchByID(@PathVariable Long id) {
         return service.searchByID(id);
     }
 
     @PutMapping("/{id}/deactivate")
-    public void deactivate(@PathVariable Long id) {
-        service.deactivateId(id);
+    public ClientResponseDTO deactivate(@PathVariable Long id) {
+        return service.deactivateId(id);
     }
-
+        
+/*
     @PutMapping("/{id}/update")
-    public Client updateInfo(@PathVariable Long id, @RequestBody Client info) {
+    public ClientResponseDTO updateInfo(@PathVariable Long id, @RequestBody Client info) {
         return service.updateInfo(id, info);
     }
+    */
 }

@@ -1,9 +1,16 @@
 package com.deliverytech.delivery_api.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
 
 import com.deliverytech.delivery_api.repository.ClientRepository;
+
+import jakarta.transaction.Transactional;
+
+import com.deliverytech.delivery_api.dto.requests.ClientDTO;
+import com.deliverytech.delivery_api.dto.responses.ClientResponseDTO;
+import com.deliverytech.delivery_api.exception.BusinessException;
+import com.deliverytech.delivery_api.exception.EntityNotFoundException;
 import com.deliverytech.delivery_api.model.Client;
 
 import java.util.List;
@@ -12,41 +19,51 @@ import java.util.List;
 
 public class ClientService {
 
-    @Autowired
-    private ClientRepository repository;
+    private final ClientRepository repository;
 
-    public ClientService(ClientRepository repository) {
+    private final ModelMapper modelMapper;
+
+    public ClientService(ClientRepository repository, ModelMapper modelMapper) {
         this.repository = repository;
+        this.modelMapper = modelMapper;
     }
 
-    public Client registerClient(Client client) {
-        if (repository.existsByEmail(client.getEmail())) {
-            throw new IllegalArgumentException("E-mail já cadastrado.");
+    @Transactional
+    public ClientResponseDTO registerClient(ClientDTO dto) {
+        if (repository.existsByEmail(dto.getEmail())) {
+            throw new BusinessException("E-mail já cadastrado.");
         }
 
+        Client client = modelMapper.map(dto, Client.class);
         client.setActive(true);
+        Client save = repository.save(client);
 
-        return repository.save(client);
+        return modelMapper.map(save, ClientResponseDTO.class);
     }
 
-    public List<Client> listActives() {
-        return repository.findByActiveTrue();
+    public List<ClientResponseDTO> listActives() {
+        return repository.findByActiveTrue().stream().map(c -> modelMapper.map(c, ClientResponseDTO.class)).toList();
     }
 
-    public Client searchByID(Long id) {
+    public ClientResponseDTO searchByID(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
-        return repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado."));
+        Client client = repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
+    
+        return modelMapper.map(client, ClientResponseDTO.class);
     }
 
-    public void deactivateId(Long id) {
-        Client client = searchByID(id);
-        client.setActive(false);
-        repository.save(client);
+    public ClientResponseDTO deactivateId(Long id){
+        Client client =  repository.findById(id)
+        .orElseThrow(()-> new EntityNotFoundException("Cliente não encontrado."));
+        client.setActive(!client.isActive());
+        Client salvo = repository.save(client);
+        return modelMapper.map(salvo, ClientResponseDTO.class);
     }
-
-    public Client updateInfo(Long id, Client info) {
+ /*
+    public ClientResponseDTO updateInfo(Long id, Client info) {
         Client client = searchByID(id);
         client.setName(info.getName());
         client.setEmail(info.getEmail());
@@ -54,4 +71,5 @@ public class ClientService {
         client.setAddress(info.getAddress());
         return repository.save(client);
     }
+*/
 }
