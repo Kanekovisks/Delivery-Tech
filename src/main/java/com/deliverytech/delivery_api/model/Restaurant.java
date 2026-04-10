@@ -29,6 +29,7 @@ public class Restaurant {
     private String address;
     private String phone;
     private BigDecimal rating;
+    private BigDecimal deliveryFee;
     private Boolean active; 
 
     @OneToMany(mappedBy = "restaurant", fetch = FetchType.LAZY)

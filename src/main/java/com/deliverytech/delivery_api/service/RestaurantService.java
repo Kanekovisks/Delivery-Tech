@@ -3,7 +3,6 @@ package com.deliverytech.delivery_api.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import com.deliverytech.delivery_api.dto.responses.RestaurantResponseDTO;
 import com.deliverytech.delivery_api.repository.RestaurantRepository;
 
 @Service
