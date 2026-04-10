@@ -8,6 +8,8 @@ import java.util.Random;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.deliverytech.delivery_api.enums.OrderStatus;
 import com.deliverytech.delivery_api.model.Client;
@@ -79,8 +81,9 @@ public class DataLoader {
                 Boolean exists = clientRepository.existsByEmail(emails[2]);
                 System.out.println("Existe Fernando? " + exists);
 
+                Pageable pageable = PageRequest.of(0,10);
                 System.out.println("=> Cliente ativos: ");
-                clientRepository.findByActiveTrue().forEach(c -> System.out.println(c.getName()));
+                clientRepository.findByActiveTrue(pageable).forEach(c -> System.out.println(c.getName()));
 
                 System.out.println("========= Inserindo Restaurantes =========");
                 

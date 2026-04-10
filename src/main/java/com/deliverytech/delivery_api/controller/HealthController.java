@@ -6,8 +6,10 @@ import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@RestController
+@Tag(name = "Health", description = "Verificador base de informações da aplicação.")
 public class HealthController {
     
     @GetMapping("/health")

@@ -1,7 +1,10 @@
 package com.deliverytech.delivery_api.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
+
 
 import com.deliverytech.delivery_api.repository.ClientRepository;
 
@@ -13,10 +16,7 @@ import com.deliverytech.delivery_api.exception.BusinessException;
 import com.deliverytech.delivery_api.exception.EntityNotFoundException;
 import com.deliverytech.delivery_api.model.Client;
 
-import java.util.List;
-
 @Service
-
 public class ClientService {
 
     private final ClientRepository repository;
@@ -41,8 +41,9 @@ public class ClientService {
         return modelMapper.map(save, ClientResponseDTO.class);
     }
 
-    public List<ClientResponseDTO> listActives() {
-        return repository.findByActiveTrue().stream().map(c -> modelMapper.map(c, ClientResponseDTO.class)).toList();
+    public Page<ClientResponseDTO> listActives(Pageable pageable) {
+        return repository.findByActiveTrue(pageable)
+        .map(client -> modelMapper.map(client, ClientResponseDTO.class));
     }
 
     public ClientResponseDTO searchByID(Long id) {
@@ -55,21 +56,31 @@ public class ClientService {
         return modelMapper.map(client, ClientResponseDTO.class);
     }
 
+    @Transactional
     public ClientResponseDTO deactivateId(Long id){
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo.");
+        }
         Client client =  repository.findById(id)
         .orElseThrow(()-> new EntityNotFoundException("Cliente não encontrado."));
         client.setActive(!client.isActive());
         Client salvo = repository.save(client);
         return modelMapper.map(salvo, ClientResponseDTO.class);
     }
- /*
-    public ClientResponseDTO updateInfo(Long id, Client info) {
-        Client client = searchByID(id);
+    
+    @Transactional
+    public ClientResponseDTO updateInfo(Long id, ClientDTO info) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID não pode ser nulo.");
+        }
+        Client client = repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
         client.setName(info.getName());
         client.setEmail(info.getEmail());
         client.setPhone(info.getPhone());
         client.setAddress(info.getAddress());
-        return repository.save(client);
+        Client save = repository.save(client);
+        return modelMapper.map(save, ClientResponseDTO.class);
+        
     }
-*/
 }
