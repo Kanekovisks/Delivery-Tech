@@ -27,4 +27,7 @@ public class ProductDTO {
     @Positive(message = "O preço deve ser maior que zero")
     @NotNull(message = "Preço é obrigatório")
     private BigDecimal price;
+
+    @NotNull(message = "ID do restaurante é obrigatório")
+    private Long restaurantId;
 }

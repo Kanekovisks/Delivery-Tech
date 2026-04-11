@@ -1,6 +1,8 @@
 package com.deliverytech.delivery_api.dto.requests;
 
 import java.math.BigDecimal;
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -29,4 +31,8 @@ public class OrderDTO {
     @NotNull(message = "O campo de taxa de entrega é obrigatório.")
     @PositiveOrZero(message = "A taxa de entrega deve ser zero ou maior.")
     private BigDecimal deliveryFee;
+
+    @Schema(description = "Lista de itens do pedido.")
+    @NotNull(message = "A lista de itens é obrigatória.")
+    private List<ItemOrderedDTO> items;
 }

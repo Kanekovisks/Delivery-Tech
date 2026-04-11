@@ -1,6 +1,7 @@
 package com.deliverytech.delivery_api.controller;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.deliverytech.delivery_api.service.ClientService;
+import com.deliverytech.delivery_api.service.IClientService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/clients")
 @Tag(name = "Clientes", description = "Endpoints de controle de clientes.")
 public class ClientController {
-    private ClientService service;
+    private IClientService service;
 
-    public ClientController(ClientService service) {
+    public ClientController(IClientService service) {
         this.service = service;
     }
 
@@ -64,8 +65,8 @@ public class ClientController {
 
     ){
         Pageable pageable = PageRequest.of(page, size);
-        var pageResult = service.listActives(pageable);
-        var pageResponse = new PagedResponse<>(pageResult);
+        Page<ClientResponseDTO> pageResult = service.listActiveClients(pageable);
+        PagedResponse<ClientResponseDTO> pageResponse = new PagedResponse<>(pageResult);
 
         return ResponseEntity.ok()
         .header("Content-Type", "application/json")
@@ -83,7 +84,7 @@ public class ClientController {
     @GetMapping("/{id}")
     public ResponseEntity<com.deliverytech.delivery_api.dto.responses.ApiResponse<ClientResponseDTO>> searchByID(@PathVariable Long id) {
         return ResponseEntity.ok().header("Content-Type", "application/json")
-        .body(new com.deliverytech.delivery_api.dto.responses.ApiResponse<>(service.searchByID(id)));
+        .body(new com.deliverytech.delivery_api.dto.responses.ApiResponse<>(service.findClientById(id)));
     }
 
     @Operation(summary = "Ativar/Desativar cliente baseado no ID.")
@@ -94,9 +95,9 @@ public class ClientController {
             @ApiResponse(responseCode = "404", description = "Incapaz de encontrar cliente com ID mencionado."),
         }
     )
-    @PutMapping("/{id}/deactivate")
-    public ClientResponseDTO deactivate(@PathVariable Long id) {
-        return service.deactivateId(id);
+    @PutMapping("/{id}/toggleActive")
+    public ClientResponseDTO toggleClientStatus(@PathVariable Long id) {
+        return service.toggleClientStatus(id);
     }
 
     @Operation(summary = "Atualizar informações do cliente.")
@@ -108,8 +109,8 @@ public class ClientController {
         }
     )
     @PutMapping("/{id}/update")
-    public ResponseEntity<com.deliverytech.delivery_api.dto.responses.ApiResponse<ClientResponseDTO>> updateInfo(@PathVariable Long id, @Valid @RequestBody ClientDTO info) {
+    public ResponseEntity<com.deliverytech.delivery_api.dto.responses.ApiResponse<ClientResponseDTO>> updateClient(@PathVariable Long id, @Valid @RequestBody ClientDTO info) {
         return ResponseEntity.ok().header("Content-Type", "application/json")
-        .body(new com.deliverytech.delivery_api.dto.responses.ApiResponse<>(service.updateInfo(id, info)));
+        .body(new com.deliverytech.delivery_api.dto.responses.ApiResponse<>(service.updateClient(id, info)));
     }
 }
