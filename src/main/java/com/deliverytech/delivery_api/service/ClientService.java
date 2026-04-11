@@ -82,15 +82,18 @@ public class ClientService implements IClientService {
 
     @Override
     @Transactional
-    public ClientResponseDTO toggleClientStatus(Long id) {
+    public ClientResponseDTO updateClientStatus(Long id, Boolean active) {
         if (id == null) {
             throw new IllegalArgumentException("ID não pode ser nulo.");
         }
+        if (active == null) {
+            throw new IllegalArgumentException("O campo active não pode ser nulo.");
+        }
         Client client = repository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
-        client.setActive(!client.isActive());
-        Client salvo = repository.save(client);
-        return modelMapper.map(salvo, ClientResponseDTO.class);
+        client.setActive(active);
+        Client saved = repository.save(client);
+        return modelMapper.map(saved, ClientResponseDTO.class);
     }
 
     @Override

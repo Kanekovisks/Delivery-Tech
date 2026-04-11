@@ -11,6 +11,6 @@ public interface IClientService {
     ClientResponseDTO findClientById(Long id);
     ClientResponseDTO findClientByEmail(String email);
     ClientResponseDTO updateClient(Long id, ClientDTO dto);
-    ClientResponseDTO toggleClientStatus(Long id);
+    ClientResponseDTO updateClientStatus(Long id, Boolean active);
     Page<ClientResponseDTO> listActiveClients(Pageable pageable);
 }

@@ -85,7 +85,11 @@ public class OrderService implements IOrderService {
 
         // Criar itens
         for (ItemOrderedDTO itemDto : dto.getItems()) {
-            Product product = productRepository.findById(itemDto.getProductId())
+            Long productId = itemDto.getProductId();
+            if (productId == null) {
+                throw new BusinessException("ID do produto não pode ser nulo.");
+            }
+            Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado."));
             if (!product.getAvailable()) {
                 throw new BusinessException("Produto não disponível: " + product.getName());
@@ -105,6 +109,9 @@ public class OrderService implements IOrderService {
 
     @Override
     public OrderResponseDTO findOrderById(Long id) {
+        if (id == null) {
+            throw new EntityNotFoundException("ID do pedido não pode ser nulo.");
+        }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado."));
         return modelMapper.map(order, OrderResponseDTO.class);
@@ -120,6 +127,9 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public OrderResponseDTO updateOrderStatus(Long id, OrderStatus status) {
+        if (id == null) {
+            throw new BusinessException("ID do pedido não pode ser nulo.");
+        }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado."));
         // Validar transições
@@ -152,6 +162,9 @@ public class OrderService implements IOrderService {
     @Override
     @Transactional
     public OrderResponseDTO cancelOrder(Long id) {
+        if (id == null) {
+            throw new EntityNotFoundException("ID do pedido não pode ser nulo.");
+        }
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pedido não encontrado."));
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
