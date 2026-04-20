@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +27,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(value = "/api/products", produces = "application/json")
+@CrossOrigin(origins = "*")
 @Tag(name = "Produtos", description = "Endpoints de controle de produtos.")
 public class ProductController {
 
@@ -40,7 +43,8 @@ public class ProductController {
         @ApiResponse(responseCode = "201", description = "Produto cadastrado."),
         @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro de produto.")
     })
-    @PostMapping("/products/register")
+    @PreAuthorize("hasAnyRole('ADMIN','RESTAURANT')")
+    @PostMapping("/register")
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.registerProduct(dto));
     }
@@ -50,7 +54,7 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "Produto encontrado."),
         @ApiResponse(responseCode = "404", description = "Produto não encontrado.")
     })
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findProductById(id));
     }
@@ -60,7 +64,7 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "Produtos retornados."),
         @ApiResponse(responseCode = "404", description = "Restaurante não encontrado.")
     })
-    @GetMapping("/restaurants/{restaurantId}/products")
+    @GetMapping("/restaurants/{restaurantId}")
     public ResponseEntity<List<ProductResponseDTO>> getProductsByRestaurant(@PathVariable Long restauranteId) {
         return ResponseEntity.ok(service.findProductsByRestaurant(restauranteId));
     }
@@ -70,7 +74,8 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "Produto atualizado."),
         @ApiResponse(responseCode = "404", description = "Produto não encontrado.")
     })
-    @PutMapping("/products/{id}/update")
+    @PreAuthorize("hasAnyRole('ADMIN','RESTAURANT')")
+    @PutMapping("/{id}/update")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         return ResponseEntity.ok(service.updateProduct(id, dto));
     }
@@ -80,7 +85,7 @@ public class ProductController {
         @ApiResponse(responseCode = "200", description = "Disponibilidade atualizada."),
         @ApiResponse(responseCode = "404", description = "Produto não encontrado.")
     })
-    @PatchMapping("/products/{id}/availability")
+    @PatchMapping("/{id}/availability")
     public ResponseEntity<ProductResponseDTO> changeProductAvailability(@PathVariable Long id, @Valid @RequestBody ProductAvailabilityDTO dto) {
         return ResponseEntity.ok(service.toggleProductAvailability(id, dto.getAvailable()));
     }
@@ -89,7 +94,7 @@ public class ProductController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Produtos filtrados retornados.")
     })
-    @GetMapping("/products/category/{category}")
+    @GetMapping("/category/{category}")
     public ResponseEntity<List<ProductResponseDTO>> getProductsByCategory(@PathVariable String categoria) {
         return ResponseEntity.ok(service.findProductsByCategory(categoria));
     }

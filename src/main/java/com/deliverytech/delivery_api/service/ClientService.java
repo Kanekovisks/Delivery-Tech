@@ -15,6 +15,7 @@ import com.deliverytech.delivery_api.dto.responses.ClientResponseDTO;
 import com.deliverytech.delivery_api.exception.BusinessException;
 import com.deliverytech.delivery_api.exception.EntityNotFoundException;
 import com.deliverytech.delivery_api.model.Client;
+import com.deliverytech.delivery_api.model.User;
 
 @Service
 public class ClientService implements IClientService {
@@ -28,18 +29,33 @@ public class ClientService implements IClientService {
         this.modelMapper = modelMapper;
     }
 
-    @Override
     @Transactional
-    public ClientResponseDTO registerClient(ClientDTO dto) {
-        if (repository.existsByEmail(dto.getEmail())) {
-            throw new BusinessException("E-mail já cadastrado.");
+    @Override
+    public ClientResponseDTO registerClient(ClientDTO dto, User userLogged) {
+
+        if (userLogged == null) {
+            throw new BusinessException("Usuário não autenticado.");
+        }
+
+        if (!userLogged.getRole().name().equals("CLIENT")
+            && !userLogged.getRole().name().equals("ADMIN")) {
+            throw new BusinessException("Apenas CLIENTE ou ADMIN podem criar perfil de cliente.");
+        }
+
+        // 🔒 evita duplicidade por usuário
+        if (repository.existsByUser_Id(userLogged.getId())) {
+            throw new BusinessException("Cliente já cadastrado para este usuário.");
         }
 
         Client client = modelMapper.map(dto, Client.class);
-        client.setActive(true);
-        Client save = repository.save(client);
 
-        return modelMapper.map(save, ClientResponseDTO.class);
+        client.setUser(userLogged);
+        client.setEmail(userLogged.getEmail());
+        client.setActive(true);
+
+        Client salvo = repository.save(client);
+
+        return modelMapper.map(salvo, ClientResponseDTO.class);
     }
 
     @Override

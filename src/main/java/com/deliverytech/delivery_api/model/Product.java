@@ -31,6 +31,10 @@ public class Product {
     private BigDecimal price; 
     private Boolean available;
 
+    public boolean isAvailable() {
+        return available;
+    }
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;

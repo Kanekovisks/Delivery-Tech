@@ -1,9 +1,10 @@
 package com.deliverytech.delivery_api.dto.requests;
 
+import com.deliverytech.delivery_api.validation.ValidPhone;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +23,7 @@ public class ClientDTO {
     private String email;
 
     @Schema(description = "Telefone do cliente.", example = "(12)91234-1234")
-    @Pattern(regexp = "^(?:\\+55\\s?)?(?:\\([1-9]{2}\\)|[1-9]{2})\\s?(?:9\\d{4}|\\d{4})[-\\s]?\\d{4}$", 
-    message = "Formato de telefone inválido. Use (XX) XXXXX-XXXX.")
+    @ValidPhone
     @NotBlank(message = "O campo de telefone é obrigatório.")
     private String phone;
 
