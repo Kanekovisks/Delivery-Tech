@@ -2,6 +2,8 @@ package com.deliverytech.delivery_api.dto.requests;
 
 import java.math.BigDecimal;
 
+import com.deliverytech.delivery_api.validation.ValidCategory;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +22,7 @@ public class RestaurantDTO {
 
     @Schema(description = "Categoria do restaurante.", example = "Hamburgueria")
     @NotBlank(message = "O campo de categoria é obrigatório.")
+    @ValidCategory
     private String category;
 
     @Schema(description = "Endereço do restaurante.", example = "Avenida 1, 123")

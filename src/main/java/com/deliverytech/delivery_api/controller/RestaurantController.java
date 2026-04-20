@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.deliverytech.delivery_api.dto.requests.RestaurantDTO;
 import com.deliverytech.delivery_api.dto.responses.RestaurantResponseDTO;
+import com.deliverytech.delivery_api.enums.RestaurantCategory;
+import com.deliverytech.delivery_api.model.User;
 import com.deliverytech.delivery_api.service.IRestaurantService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +30,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/restaurants")
+@CrossOrigin(origins = "*")
 @Tag(name = "Restaurantes", description = "Endpoints de controle de restaurantes.")
 public class RestaurantController {
 
@@ -39,9 +45,10 @@ public class RestaurantController {
         @ApiResponse(responseCode = "201", description = "Restaurante cadastrado."),
         @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro de restaurante.")
     })
+    @PreAuthorize("hasAnyRole('ADMIN', 'RESTAURANTE')")
     @PostMapping("/register")
-    public ResponseEntity<RestaurantResponseDTO> registerRestaurant(@Valid @RequestBody RestaurantDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerRestaurant(dto));
+    public ResponseEntity<RestaurantResponseDTO> registerRestaurant(@Valid @RequestBody RestaurantDTO dto, @AuthenticationPrincipal User userLogged) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerRestaurant(dto, userLogged));
     }
 
     @Operation(summary = "Buscar restaurante por ID.")
@@ -68,7 +75,7 @@ public class RestaurantController {
         @ApiResponse(responseCode = "200", description = "Restaurantes filtrados retornados.")
     })
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<RestaurantResponseDTO>> findRestaurantsByCategory(@PathVariable String categoria) {
+    public ResponseEntity<List<RestaurantResponseDTO>> findRestaurantsByCategory(@PathVariable RestaurantCategory categoria) {
         return ResponseEntity.ok(service.findRestaurantsByCategory(categoria));
     }
 

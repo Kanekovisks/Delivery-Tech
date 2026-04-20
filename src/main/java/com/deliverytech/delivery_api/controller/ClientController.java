@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,6 +21,7 @@ import com.deliverytech.delivery_api.dto.requests.ClientDTO;
 import com.deliverytech.delivery_api.dto.requests.StatusUpdateDTO;
 import com.deliverytech.delivery_api.dto.responses.ClientResponseDTO;
 import com.deliverytech.delivery_api.dto.responses.PagedResponse;
+import com.deliverytech.delivery_api.model.User;
 import com.deliverytech.delivery_api.service.IClientService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,8 +50,8 @@ public class ClientController {
         }
     )
     @PostMapping("/register")
-    public ResponseEntity<ClientResponseDTO> registerClient(@Valid @RequestBody ClientDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerClient(dto));
+    public ResponseEntity<ClientResponseDTO> registerClient(@Valid @RequestBody ClientDTO dto, @AuthenticationPrincipal User userLogged) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registerClient(dto, userLogged));
     }
 
     @Operation(summary = "Listar clientes ativos.")

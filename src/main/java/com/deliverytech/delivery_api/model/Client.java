@@ -9,7 +9,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +32,10 @@ public class Client {
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
     private List<Order> orders = new ArrayList<>();
+
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id", nullable=false)
+    private User user;
 
     public Boolean isActive(){
         return active;

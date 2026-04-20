@@ -12,15 +12,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.deliverytech.delivery_api.enums.OrderStatus;
+import com.deliverytech.delivery_api.enums.RestaurantCategory;
+import com.deliverytech.delivery_api.enums.UserRole;
 import com.deliverytech.delivery_api.model.Client;
 import com.deliverytech.delivery_api.model.ItemOrdered;
 import com.deliverytech.delivery_api.model.Order;
 import com.deliverytech.delivery_api.model.Product;
 import com.deliverytech.delivery_api.model.Restaurant;
+import com.deliverytech.delivery_api.model.User;
 import com.deliverytech.delivery_api.repository.ClientRepository;
 import com.deliverytech.delivery_api.repository.OrderRepository;
 import com.deliverytech.delivery_api.repository.ProductRepository;
 import com.deliverytech.delivery_api.repository.RestaurantRepository;
+import com.deliverytech.delivery_api.repository.UserRepository;
 import com.deliverytech.delivery_api.repository.ItemOrderedRepository;
 
 @Configuration
@@ -31,7 +35,8 @@ public class DataLoader {
         RestaurantRepository restaurantRepository,
         ProductRepository productRepository,
         OrderRepository orderRepository,
-        ItemOrderedRepository itemOrderedRepository
+        ItemOrderedRepository itemOrderedRepository, 
+        UserRepository userRepository
         ) {
             return args -> {
                 String[] names = {"João Silva", "Maria Costa", "Fernando Carvalho"};
@@ -40,7 +45,8 @@ public class DataLoader {
                 String[] addresses = {"Av 1, 123", "Av 2, 123", "Av 3, 123"};
 
                 String[] restaurantNames = {"Big's Hamburgueria", "Pizzaria Donatelo"};
-                String[] categories = {"Hamburgueria", "Pizzaria"};
+                String[] restaurantEmails = {"bigshamburgueria@exemplo.com", "pizzariadonatelo@exemplo.com"};
+                RestaurantCategory[] categories = {RestaurantCategory.HAMBURGUERIA, RestaurantCategory.PIZZARIA};
                 String[] restaurantPhones = {"1234-1234", "5678-5678"};
                 String[] restaurantAddresses = {"Av 11, 123", "Av 22, 123"};
                 BigDecimal[] ratings = {new BigDecimal("4.1"), new BigDecimal("3.8")};
@@ -57,13 +63,25 @@ public class DataLoader {
                 System.out.println("========= Inserindo Clientes =========");
                 
                 List<Client> clients = new ArrayList<>();
+
                 for (int i = 0; i < names.length; i++) {
+
+                    User user = new User();
+                    user.setEmail(emails[i]);
+                    user.setPassword("123456");
+                    user.setRole(UserRole.CLIENT);
+                    user.setActive(true);
+
+                    userRepository.save(user);
+
                     Client client = new Client();
                     client.setName(names[i]);
                     client.setEmail(emails[i]);
                     client.setPhone(phones[i]);
                     client.setAddress(addresses[i]);
                     client.setActive(true);
+
+                    client.setUser(user);
                     clients.add(client);
                 }
 
@@ -85,17 +103,28 @@ public class DataLoader {
                 System.out.println("=> Cliente ativos: ");
                 clientRepository.findByActiveTrue(pageable).forEach(c -> System.out.println(c.getName()));
 
-                System.out.println("========= Inserindo Restaurantes =========");
-                
+                System.out.println("========= Inserindo Restaurantes =========");            
+
                 List<Restaurant> restaurants = new ArrayList<>();
                 for (int i = 0; i < restaurantNames.length; i++) {
                     Restaurant restaurant = new Restaurant();
+                    User user = new User();
+
+                    user.setEmail(restaurantEmails[i]);
+                    user.setPassword("123456");
+                    user.setRole(UserRole.RESTAURANT);
+                    user.setActive(true);
+                    
+                    userRepository.save(user);
+
                     restaurant.setName(restaurantNames[i]);
                     restaurant.setCategory(categories[i]);
                     restaurant.setPhone(restaurantPhones[i]);
                     restaurant.setAddress(restaurantAddresses[i]);
                     restaurant.setRating(ratings[i]);
                     restaurant.setActive(true);
+
+                    restaurant.setUser(user);
                     restaurants.add(restaurant);
                 }
 
